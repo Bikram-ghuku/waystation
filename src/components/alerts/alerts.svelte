@@ -21,9 +21,13 @@
 		dateEnd = formatTimestamp(activeWindow?.to);
 
 		if (title && getLocale() !== 'en') {
-			translate(title, getLocale()).then((result) => {
-				translatedTitle = result;
-			});
+			translate(title, getLocale())
+				.then((result) => {
+					translatedTitle = result;
+				})
+				.catch(() => {
+					translatedTitle = title;
+				});
 		}
 	});
 </script>
