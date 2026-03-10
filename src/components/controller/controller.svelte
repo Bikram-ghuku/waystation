@@ -150,11 +150,11 @@
 	{#if situations.length > 0 && situations[0].summary?.value && allDepartures.length > 0}
 		{#if sideDisplay}
 			<div class="flex-shrink-0 basis-[35%] overflow-y-auto">
-				<Alerts situation={situations[alertIndex]} displayMode={sideDisplay} />
+				<Alerts situation={situations[Math.max(0, alertIndex)]} displayMode={sideDisplay} />
 			</div>
 		{:else}
 			<div class="fixed" style={`bottom: ${footerHeight}px`}>
-				<Alerts situation={situations[alertIndex]} displayMode={sideDisplay} />
+				<Alerts situation={situations[Math.max(0, alertIndex)]} displayMode={sideDisplay} />
 			</div>
 		{/if}
 	{/if}
