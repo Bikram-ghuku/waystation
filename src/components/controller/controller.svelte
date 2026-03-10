@@ -29,9 +29,11 @@
 		MAX_DEPARTURES = 99;
 
 	function cycleAlerts() {
-		if (situations.length >= 2) {
-			alertIndex = (alertIndex + 1) % situations.length;
+		if (situations.length === 0) {
+			alertIndex = 0;
+			return;
 		}
+		alertIndex = (alertIndex + 1) % situations.length;
 	}
 
 	function stopRequestDataModel(dep, stopID, stopName) {
