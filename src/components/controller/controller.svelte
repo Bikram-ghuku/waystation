@@ -15,7 +15,7 @@
 
 	let { stopIDs = [] } = $props();
 
-	let alertIndex = $state(0);
+	let alertIndex = $state(-1);
 	let footerHeight = $state(0);
 	let sideDisplay = $state(false);
 
@@ -30,7 +30,7 @@
 
 	function cycleAlerts() {
 		if (situations.length === 0) {
-			alertIndex = 0;
+			alertIndex = -1;
 			return;
 		}
 		alertIndex = (alertIndex + 1) % situations.length;
