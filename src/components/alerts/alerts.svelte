@@ -16,10 +16,11 @@
 		const activeWindow = situation?.activeWindows?.[0];
 
 		title = situation?.summary?.value?.trim?.() ?? '';
+		translatedTitle = '';
 		dateStart = formatTimestamp(activeWindow?.from);
 		dateEnd = formatTimestamp(activeWindow?.to);
 
-		if (getLocale() !== 'en') {
+		if (title && getLocale() !== 'en') {
 			translate(title, getLocale()).then((result) => {
 				translatedTitle = result;
 			});
