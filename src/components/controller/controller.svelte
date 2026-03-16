@@ -147,7 +147,7 @@
 		{/if}
 	</div>
 
-	{#if situations.length > 0 && situations[alertIndex].summary?.value && allDepartures.length > 0}
+	{#if situations.length > 0 && situations[Math.max(0, alertIndex)].summary?.value && allDepartures.length > 0}
 		{#if sideDisplay}
 			<div class="flex-shrink-0 basis-[35%] overflow-y-auto">
 				<Alerts situation={situations[Math.max(0, alertIndex)]} displayMode={sideDisplay} />
