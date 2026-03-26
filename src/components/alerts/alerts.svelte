@@ -5,22 +5,31 @@
 
 	import * as t from '$lib/paraglide/messages.js';
 
-	let { situations = [], displayMode } = $props();
+	let { situation = {}, displayMode } = $props();
 
-	let title = $state(situations[0]?.summary?.value?.trim?.() ?? '');
-	let translatedTitle = $state(title);
+	let title = $state('');
+	let translatedTitle = $state('');
+	let dateStart = $state('');
+	let dateEnd = $state('');
 
 	$effect(() => {
-		if (getLocale() !== 'en') {
-			translate(title, getLocale()).then((result) => {
-				translatedTitle = result;
-			});
+		const activeWindow = situation?.activeWindows?.[0];
+
+		title = situation?.summary?.value?.trim?.() ?? '';
+		translatedTitle = '';
+		dateStart = formatTimestamp(activeWindow?.from);
+		dateEnd = formatTimestamp(activeWindow?.to);
+
+		if (title && getLocale() !== 'en') {
+			translate(title, getLocale())
+				.then((result) => {
+					translatedTitle = result;
+				})
+				.catch(() => {
+					translatedTitle = title;
+				});
 		}
 	});
-
-	const activeWindow = situations[0]?.activeWindows?.[0];
-	const dateStart = formatTimestamp(activeWindow?.from);
-	const dateEnd = formatTimestamp(activeWindow?.to);
 </script>
 
 {#if displayMode}
