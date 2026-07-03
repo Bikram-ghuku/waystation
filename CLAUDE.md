@@ -47,6 +47,8 @@ Component tests mock `fetch` and use `@testing-library/svelte` for rendering/que
 
 **OBA SDK wrapper** (`src/lib/obaSdk.js`): Initializes the `onebusaway-sdk` client with env vars and provides `handleOBAResponse()` for validating API responses.
 
+**Prometheus metrics** (`src/lib/metrics/`): A dedicated `prom-client` registry (`registry.js`) exposed via an internal-only `node:http` server (`server.js`) on port 9119 (override with `METRICS_PORT`), started from `src/hooks.server.js`, which also instruments all requests with `http_requests_total` / `http_request_duration_seconds` labeled by route template. The `/api/oba/*` proxy routes record `oba_upstream_requests_total{endpoint, result="fresh"|"empty"|"stale"|"error"}` — the key kiosk-health signal; this metric is Waystation-specific. The HTTP metric names and the port match Wayfinder and the OneBusAway Twilio app so dashboards can be shared.
+
 **i18n**: Uses inlang Paraglide JS. Translation messages are in `messages/` as JSON files per locale. Generated runtime code goes to `src/lib/paraglide/`. Import translations as `import * as t from '$lib/paraglide/messages.js'`. Service alerts are translated dynamically via Google Translate proxy in `formatters.js`.
 
 ## Conventions
