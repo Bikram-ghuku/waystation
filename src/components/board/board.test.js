@@ -4,10 +4,11 @@ import { describe, test, expect, afterEach } from 'vitest';
 import Board from './board.svelte';
 
 // When a stop has no departures, the board renders the EmptyBoard whose headline
-// is driven by `emptyMode = !updatedDate && fetchFailed ? 'error' : !updatedDate ? 'connecting' : stale ? 'stale' : 'empty'`.
-// These tests pin that branching — the ternary ordering is easy to invert, and a
-// regression would silently show a rider the wrong state (e.g. "CONNECTING" forever
-// when the live feed is actually stale or down).
+// is driven by emptyMode (see board.svelte). The two axes are independent:
+//   has data?  yes: stale / empty    no: error / connecting
+// These tests pin every branch. The ordering is easy to invert and a regression
+// would silently show a rider the wrong state (e.g. "NO DATA" instead of "NO LIVE DATA"
+// when data exists but the feed has gone stale).
 describe('Board empty state', () => {
 	afterEach(() => {
 		cleanup();
@@ -24,11 +25,6 @@ describe('Board empty state', () => {
 		expect(container.innerHTML).toContain('CONNECTING');
 	});
 
-	test('shows NO DATA when all fetches fail on first load', () => {
-		const { container } = renderEmpty({ lastUpdatedAt: null, fetchFailed: true });
-		expect(container.innerHTML).toContain('NO DATA');
-	});
-
 	test('shows NO DEPARTURES once loaded with no service', () => {
 		const { container } = renderEmpty({ lastUpdatedAt: now.getTime(), isStale: false });
 		expect(container.innerHTML).toContain('NO DEPARTURES');
@@ -42,5 +38,15 @@ describe('Board empty state', () => {
 	test('shows NO LIVE DATA when data ages past the 90s staleness threshold', () => {
 		const { container } = renderEmpty({ lastUpdatedAt: now.getTime() - 91_000, isStale: false });
 		expect(container.innerHTML).toContain('NO LIVE DATA');
+	});
+
+	test('shows NO DATA when all fetches fail on first load', () => {
+		const { container } = renderEmpty({ lastUpdatedAt: null, fetchFailed: true });
+		expect(container.innerHTML).toContain('NO DATA');
+	});
+
+	test('does not show NO DATA when a fetch fails but data already exists', () => {
+		const { container } = renderEmpty({ lastUpdatedAt: now.getTime(), fetchFailed: true });
+		expect(container.innerHTML).not.toContain('NO DATA');
 	});
 });
