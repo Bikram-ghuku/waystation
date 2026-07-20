@@ -26,6 +26,7 @@
 	let lastUpdatedAt = $state(null);
 	let isStale = $state(false);
 	let fetchFailed = $state(false);
+	let failedStopIds = $state([]);
 
 	const activeAlert = $derived(
 		situations.length > 0 ? situations[alertIndex % situations.length] : null
@@ -57,11 +58,16 @@
 			const ids = data.stopIDs;
 			const settled = await Promise.allSettled(ids.map(fetchStop));
 			const fulfilled = [];
+			const failed = [];
 
 			settled.forEach((r, i) => {
 				if (r.status === 'fulfilled') fulfilled.push(r.value);
-				else console.error(`Board fetch failed for stop ${ids[i]}:`, r.reason);
+				else {
+					console.error(`Board fetch failed for stop ${ids[i]}:`, r.reason);
+					failed.push(ids[i]);
+				}
 			});
+			failedStopIds = failed;
 
 			if (fulfilled.length === 0) {
 				if (lastUpdatedAt === null) fetchFailed = true;
@@ -153,6 +159,7 @@
 			{lastUpdatedAt}
 			{isStale}
 			{fetchFailed}
+			{failedStopIds}
 			{showStopName}
 			rowCount={Math.min(maxDepartures, 5)}
 		/>
