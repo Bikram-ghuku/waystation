@@ -40,7 +40,7 @@
 		if (updatedDate) return stale ? 'stale' : 'empty';
 		return fetchFailed ? 'error' : 'connecting';
 	});
-	const showFailedBadge = $derived(failedStopIds.length > 0 && arrivals.length > 0);
+	const showFailedBadge = $derived(failedStopIds.length > 0);
 </script>
 
 <div
@@ -150,7 +150,7 @@
 				style:border="1px solid var(--late)"
 				style:border-left="4px solid var(--late)"
 				style:border-radius="2px"
-				style:background="rgba(255, 139, 106, 0.06)"
+				style:background="color-mix(in srgb, var(--late) 6%, transparent)"
 				style:font-size="20px"
 				style:letter-spacing="0.18em"
 				style:color="var(--late)"
