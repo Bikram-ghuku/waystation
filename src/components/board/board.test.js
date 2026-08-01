@@ -61,4 +61,14 @@ describe('Board empty state', () => {
 		});
 		expect(container.innerHTML).toContain('DATA UNAVAILABLE FOR STOP');
 	});
+
+	test('shows the failed-stop badge with no arrivals at all', () => {
+		const { container } = renderEmpty({
+			lastUpdatedAt: now.getTime(),
+			isStale: false,
+			failedStopIds: ['1_200']
+		});
+		expect(container.innerHTML).toContain('DATA UNAVAILABLE FOR STOP');
+		expect(container.innerHTML).toContain('#200');
+	});
 });
