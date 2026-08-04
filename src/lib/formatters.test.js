@@ -17,7 +17,8 @@ import {
 	sortEarliestDepartures,
 	removeDuplicates,
 	formatBoardDeparture,
-	parseStopDepartures
+	parseStopDepartures,
+	diffArrivals
 } from '$lib/formatters';
 
 afterEach(() => {
@@ -275,6 +276,105 @@ describe('formatters', () => {
 		test('passes through the stale flag', () => {
 			const result = parseStopDepartures({ ...validResponse, stale: true }, 'MTS_75057');
 			expect(result.stale).toBe(true);
+		});
+	});
+
+	describe('diffArrivals', () => {
+		function departure(overrides) {
+			return {
+				route: '49',
+				name: 'Route 49',
+				dest: 'Downtown',
+				min: 5,
+				delta: 0,
+				status: 'ONTIME',
+				stopName: '',
+				departureAt: 1_000_000,
+				tripId: 't1',
+				...overrides
+			};
+		}
+
+		test('keeps the previous reference when nothing rendered has changed', () => {
+			const p = departure({});
+			const n = departure({});
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(p);
+		});
+
+		test('uses the new reference when only min changes', () => {
+			const p = departure({});
+			const n = departure({ min: 4 });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only status changes', () => {
+			const p = departure({ status: 'ONTIME' });
+			const n = departure({ status: 'LATE' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only delta changes', () => {
+			const p = departure({ delta: 0 });
+			const n = departure({ delta: 3 });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only departureAt changes', () => {
+			const p = departure({ departureAt: 1_000_000 });
+			const n = departure({ departureAt: 1_060_000 });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('passes through a new arrival with no match in the previous list', () => {
+			const p = departure({ tripId: 't1' });
+			const n = departure({ tripId: 't2' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+		});
+
+		test('uses the new reference when only route/name/dest/stopName change (headsign update, steady timing)', () => {
+			const p = departure({ route: '49', name: 'Route 49', dest: 'Downtown', stopName: 'Main St' });
+			const n = departure({ route: '49', name: 'Route 49', dest: 'Airport', stopName: 'Main St' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.dest).toBe('Airport');
+		});
+
+		test('uses the new reference when only route changes', () => {
+			const p = departure({ route: '49' });
+			const n = departure({ route: '50' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.route).toBe('50');
+		});
+
+		test('uses the new reference when only name changes', () => {
+			const p = departure({ name: 'Route 49' });
+			const n = departure({ name: 'Route 49 Express' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.name).toBe('Route 49 Express');
+		});
+
+		test('uses the new reference when only stopName changes', () => {
+			const p = departure({ stopName: 'Main St' });
+			const n = departure({ stopName: 'Main St & 5th Ave' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.stopName).toBe('Main St & 5th Ave');
 		});
 	});
 });

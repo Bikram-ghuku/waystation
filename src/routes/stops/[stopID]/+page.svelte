@@ -5,6 +5,7 @@
 
 	import Board from '$components/board/board.svelte';
 	import {
+		diffArrivals,
 		formatBoardDeparture,
 		parseStopDepartures,
 		removeDuplicates,
@@ -81,7 +82,7 @@
 				.map((dep) => formatBoardDeparture(dep, fetchNow))
 				.filter((a) => a.min >= -2);
 
-			arrivals = mapped;
+			arrivals = diffArrivals(arrivals, mapped);
 			situations = fulfilled.flatMap((r) => r.situations).filter((s) => s?.summary?.value);
 			isStale = fulfilled.some((r) => r.stale);
 
