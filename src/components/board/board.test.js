@@ -49,4 +49,26 @@ describe('Board empty state', () => {
 		const { container } = renderEmpty({ lastUpdatedAt: now.getTime(), fetchFailed: true });
 		expect(container.innerHTML).not.toContain('NO DATA');
 	});
+
+	test('shows the failed-stop badge even when the surviving stop has arrivals', () => {
+		const { container } = render(Board, {
+			props: {
+				now,
+				lastUpdatedAt: now.getTime(),
+				arrivals: [{ tripId: 't1', route: '49', departureAt: now.getTime() + 60_000, min: 1 }],
+				failedStopIds: ['1_200']
+			}
+		});
+		expect(container.innerHTML).toContain('DATA UNAVAILABLE FOR STOP');
+	});
+
+	test('shows the failed-stop badge with no arrivals at all', () => {
+		const { container } = renderEmpty({
+			lastUpdatedAt: now.getTime(),
+			isStale: false,
+			failedStopIds: ['1_200']
+		});
+		expect(container.innerHTML).toContain('DATA UNAVAILABLE FOR STOP');
+		expect(container.innerHTML).toContain('#200');
+	});
 });

@@ -21,6 +21,7 @@
 		lastUpdatedAt = null,
 		isStale = false,
 		fetchFailed = false,
+		failedStopIds = [],
 		showStopName = false,
 		rowCount = 5,
 		showFooter = true,
@@ -39,6 +40,7 @@
 		if (updatedDate) return stale ? 'stale' : 'empty';
 		return fetchFailed ? 'error' : 'connecting';
 	});
+	const showFailedBadge = $derived(failedStopIds.length > 0);
 </script>
 
 <div
@@ -134,6 +136,31 @@
 
 		{#if hasAlert}
 			<AlertBadge situation={alert} />
+		{/if}
+
+		{#if showFailedBadge}
+			<div
+				class="sc"
+				style:grid-column="1 / -1"
+				style:display="inline-flex"
+				style:align-items="center"
+				style:gap="12px"
+				style:margin-top="12px"
+				style:padding="10px 18px"
+				style:border="1px solid var(--late)"
+				style:border-left="4px solid var(--late)"
+				style:border-radius="2px"
+				style:background="color-mix(in srgb, var(--late) 6%, transparent)"
+				style:font-size="20px"
+				style:letter-spacing="0.18em"
+				style:color="var(--late)"
+				style:font-weight="700"
+			>
+				<span>
+					DATA UNAVAILABLE FOR STOP{failedStopIds.length > 1 ? 'S' : ''}
+					{failedStopIds.map((id) => '#' + (id.split('_')[1] ?? id)).join(', ')}
+				</span>
+			</div>
 		{/if}
 	</section>
 
