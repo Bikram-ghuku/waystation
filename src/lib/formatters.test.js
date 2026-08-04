@@ -297,7 +297,6 @@ describe('formatters', () => {
 
 		test('keeps the previous reference when nothing rendered has changed', () => {
 			const p = departure({});
-			// same values, different object
 			const n = departure({});
 			const [result] = diffArrivals([p], [n]);
 			expect(result).toBe(p);
@@ -325,6 +324,33 @@ describe('formatters', () => {
 			expect(result).toBe(n);
 			expect(result).not.toBe(p);
 			expect(result.dest).toBe('Airport');
+		});
+
+		test('uses the new reference when only route changes', () => {
+			const p = departure({ route: '49' });
+			const n = departure({ route: '50' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.route).toBe('50');
+		});
+
+		test('uses the new reference when only name changes', () => {
+			const p = departure({ name: 'Route 49' });
+			const n = departure({ name: 'Route 49 Express' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.name).toBe('Route 49 Express');
+		});
+
+		test('uses the new reference when only stopName changes', () => {
+			const p = departure({ stopName: 'Main St' });
+			const n = departure({ stopName: 'Main St & 5th Ave' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+			expect(result.stopName).toBe('Main St & 5th Ave');
 		});
 	});
 });
