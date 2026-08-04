@@ -5,6 +5,7 @@
 
 	import Board from '$components/board/board.svelte';
 	import {
+		diffArrivals,
 		formatBoardDeparture,
 		parseStopDepartures,
 		removeDuplicates,
@@ -26,6 +27,7 @@
 	let lastUpdatedAt = $state(null);
 	let isStale = $state(false);
 	let fetchFailed = $state(false);
+	let failedStopIds = $state([]);
 
 	const activeAlert = $derived(
 		situations.length > 0 ? situations[alertIndex % situations.length] : null
@@ -57,11 +59,16 @@
 			const ids = data.stopIDs;
 			const settled = await Promise.allSettled(ids.map(fetchStop));
 			const fulfilled = [];
+			const failed = [];
 
 			settled.forEach((r, i) => {
 				if (r.status === 'fulfilled') fulfilled.push(r.value);
-				else console.error(`Board fetch failed for stop ${ids[i]}:`, r.reason);
+				else {
+					console.error(`Board fetch failed for stop ${ids[i]}:`, r.reason);
+					failed.push(ids[i]);
+				}
 			});
+			failedStopIds = failed;
 
 			if (fulfilled.length === 0) {
 				if (lastUpdatedAt === null) fetchFailed = true;
@@ -75,7 +82,7 @@
 				.map((dep) => formatBoardDeparture(dep, fetchNow))
 				.filter((a) => a.min >= -2);
 
-			arrivals = mapped;
+			arrivals = diffArrivals(arrivals, mapped);
 			situations = fulfilled.flatMap((r) => r.situations).filter((s) => s?.summary?.value);
 			isStale = fulfilled.some((r) => r.stale);
 
@@ -153,6 +160,7 @@
 			{lastUpdatedAt}
 			{isStale}
 			{fetchFailed}
+			{failedStopIds}
 			{showStopName}
 			rowCount={Math.min(maxDepartures, 5)}
 		/>

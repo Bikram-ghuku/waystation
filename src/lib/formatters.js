@@ -373,6 +373,35 @@ export function formatBoardDeparture(dep, now = new Date()) {
 }
 
 /**
+ * Merge an incoming arrivals list against the current one, preserving object
+ * references for rows whose rendered fields haven't changed. Lets Svelte skip
+ * re-running per-row derived computations for rows that are unchanged.
+ *
+ * @param {Array} prev - Current arrivals array held in $state
+ * @param {Array} next - Freshly formatted arrivals from the latest fetch
+ * @returns {Array} - next, with unchanged rows replaced by their prev reference
+ */
+export function diffArrivals(prev, next) {
+	const prevMap = new Map(prev.map((a) => [a.tripId, a]));
+
+	return next.map((n) => {
+		const p = prevMap.get(n.tripId);
+		if (!p) return n;
+
+		const unchanged =
+			p.route === n.route &&
+			p.name === n.name &&
+			p.dest === n.dest &&
+			p.min === n.min &&
+			p.status === n.status &&
+			p.delta === n.delta &&
+			p.stopName === n.stopName &&
+			p.departureAt === n.departureAt;
+		return unchanged ? p : n;
+	});
+}
+
+/**
  * Normalize an OBA arrivals-and-departures-for-stop response into the board's
  * per-stop result model.
  *
