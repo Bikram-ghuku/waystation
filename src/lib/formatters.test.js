@@ -302,9 +302,33 @@ describe('formatters', () => {
 			expect(result).toBe(p);
 		});
 
-		test('uses the new reference when a timing field changes', () => {
+		test('uses the new reference when only min changes', () => {
 			const p = departure({});
 			const n = departure({ min: 4 });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only status changes', () => {
+			const p = departure({ status: 'ONTIME' });
+			const n = departure({ status: 'LATE' });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only delta changes', () => {
+			const p = departure({ delta: 0 });
+			const n = departure({ delta: 3 });
+			const [result] = diffArrivals([p], [n]);
+			expect(result).toBe(n);
+			expect(result).not.toBe(p);
+		});
+
+		test('uses the new reference when only departureAt changes', () => {
+			const p = departure({ departureAt: 1_000_000 });
+			const n = departure({ departureAt: 1_060_000 });
 			const [result] = diffArrivals([p], [n]);
 			expect(result).toBe(n);
 			expect(result).not.toBe(p);
